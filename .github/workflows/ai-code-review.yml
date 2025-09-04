@@ -27,10 +27,11 @@ jobs:
           node-version: '18'
 
       - name: Install dependencies
-        run: |
-          npm install ai @ai-sdk/openai @octokit/rest
+        working-directory: lesson-2-adding-automation-to-first-strategic-agent
+        run: npm install
 
       - name: Run AI code review
+        working-directory: lesson-2-adding-automation-to-first-strategic-agent
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -38,7 +39,7 @@ jobs:
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
           GITHUB_BASE_REF: ${{ github.event.pull_request.base.ref }}
           GITHUB_HEAD_REF: ${{ github.event.pull_request.head.ref }}
-        run: node ci-code-reviewer.js
+        run: node ci-runner.js
 
       - name: Upload review logs
         uses: actions/upload-artifact@v4
