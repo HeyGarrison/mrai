@@ -1,14 +1,16 @@
 import 'dotenv/config';
-import 'dotenv/config';
 import { openai } from '@ai-sdk/openai';
 import { generateText } from 'ai';
 import fs from 'fs';
 import path from 'path';
 
+import { getConfig } from './config.js';
+
 class CodeReviewer {
-  constructor(options = {}) {
-    this.model = options.model || 'gpt-4o-mini';
-    this.maxTokens = options.maxTokens || 2000;
+  constructor(configType = 'quick') {
+    this.config = getConfig(configType);
+    this.model = this.config.model;
+    this.maxTokens = this.config.maxTokens;
   }
 
   async reviewFile(filename) {
@@ -50,7 +52,9 @@ class CodeReviewer {
   }
 
   async analyzeCode(code, filename, language) {
-    const prompt = `You are an expert code reviewer. Analyze this ${language} code for:
+    const prompt = `You are an expert code reviewer focusing on ${this.config.focus}.
+
+Analyze this ${language} code with emphasis on: ${this.config.focus}
 
 1. **Bugs and Logic Issues** - Potential runtime errors, edge cases, off-by-one errors
 2. **Performance Concerns** - Inefficient algorithms, memory leaks, unnecessary operations
