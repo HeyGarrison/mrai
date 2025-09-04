@@ -38,11 +38,14 @@ async function runPRReview() {
 
     // Use our existing reviewer for each file
     const reviewResults = [];
+    const repoRoot = execSync('git rev-parse --show-toplevel', { encoding: 'utf8' }).trim();
+    
     for (const filename of reviewableFiles) {
       console.log(`📋 Reviewing ${filename}...`);
 
-      // This is our existing CodeReviewer in action!
-      const result = await reviewer.reviewFile(filename);
+      // Get full path to the file for our existing CodeReviewer
+      const fullPath = path.join(repoRoot, filename);
+      const result = await reviewer.reviewFile(fullPath);
 
       if (result.error) {
         console.log(`⚠️ Error reviewing ${filename}: ${result.error}`);
@@ -73,7 +76,15 @@ function getChangedFiles() {
       encoding: 'utf8'
     });
 
-    return output.trim().split('\n').filter(file => file && fs.existsSync(file));
+    const allChangedFiles = output.trim().split('\n').filter(file => file);
+    
+    // Check file existence relative to repo root
+    const repoRoot = execSync('git rev-parse --show-toplevel', { encoding: 'utf8' }).trim();
+    
+    return allChangedFiles.filter(file => {
+      const fullPath = path.join(repoRoot, file);
+      return fs.existsSync(fullPath);
+    });
   } catch (error) {
     console.error('Error getting changed files:', error);
     return [];
