@@ -1,0 +1,42 @@
+# CodeRabbit configuration file
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: true
+  review_status: true
+  collapse_ellipsis: false
+  auto_review:
+    enabled: true
+    ignore_title_keywords:
+      - "WIP"
+      - "DO NOT MERGE"
+      - "wip"
+      - "draft"
+    drafts: false
+  path_instructions:
+    - path: "**/*.js"
+      instructions: |
+        Review for:
+        - Security vulnerabilities (especially payment processing)
+        - Error handling and edge cases
+        - Performance issues and optimization opportunities
+        - Code clarity and maintainability
+    - path: "**/*.md"
+      instructions: |
+        Focus on:
+        - Documentation clarity
+        - Grammar and spelling
+        - Completeness of examples
+  ignore:
+    - "node_modules/**"
+    - "dist/**"
+    - "build/**"
+    - "*.log"
+    - ".env*"
+    - "package-lock.json"
+
+chat:
+  auto_reply: true
+
+language: en-US
