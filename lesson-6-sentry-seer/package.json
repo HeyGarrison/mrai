@@ -1,0 +1,24 @@
+{
+  "name": "lesson-6-sentry-seer",
+  "version": "1.0.0",
+  "description": "Demo app for Sentry Seer production error fixing",
+  "main": "app.js",
+  "type": "module",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node app.js"
+  },
+  "keywords": [
+    "sentry",
+    "seer",
+    "error-monitoring",
+    "production-debugging",
+    "ai-fixing"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@sentry/node": "^7.114.0",
+    "dotenv": "^16.4.5"
+  }
+}

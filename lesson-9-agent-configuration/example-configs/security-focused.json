@@ -1,0 +1,14 @@
+{
+  "codeReviewer": {
+    "focusAreas": ["security"],
+    "severity": "high",
+    "teamStandards": {
+      "requireInputValidation": true,
+      "flagHardcodedSecrets": true
+    }
+  },
+  "bugFixer": {
+    "safetyLevel": "high",
+    "excludePatterns": ["**/auth/**", "**/security/**"]
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "prompts": {
+    "codeReviewer": {
+      "template": "startup",
+      "customVariables": {
+        "shipPriority": "high",
+        "technicalDebt": "acceptable if it doesn't block shipping"
+      }
+    },
+    "bugFixer": {
+      "template": "comprehensive",
+      "customVariables": {
+        "optimizeWhileFixing": "true"
+      }
+    },
+    "documentationWriter": {
+      "template": "internal",
+      "customVariables": {
+        "tone": "casual and quick"
+      }
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "global": {
+    "model": "gpt-4o"
+  },
+  "codeReviewer": {
+    "focusAreas": ["security", "performance", "maintainability"],
+    "severity": "high",
+    "teamStandards": {
+      "maxFunctionLength": 25,
+      "requireJSDoc": true,
+      "enforceCamelCase": true
+    }
+  },
+  "bugFixer": {
+    "attemptComplexFixes": false,
+    "safetyLevel": "high",
+    "maxAttemptsPerFile": 2,
+    "autoCommit": false
+  },
+  "documentationWriter": {
+    "style": "comprehensive",
+    "voiceAndTone": "technical"
+  }
+}

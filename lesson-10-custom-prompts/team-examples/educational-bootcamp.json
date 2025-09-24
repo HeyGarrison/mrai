@@ -1,0 +1,23 @@
+{
+  "prompts": {
+    "codeReviewer": {
+      "template": "teaching",
+      "customVariables": {
+        "learningLevel": "beginner to intermediate",
+        "encouragement": "Focus on learning opportunities"
+      }
+    },
+    "bugFixer": {
+      "template": "conservative",
+      "customVariables": {
+        "explainFixes": "Always explain why the fix works"
+      }
+    },
+    "documentationWriter": {
+      "template": "tutorial",
+      "customVariables": {
+        "audienceLevel": "students learning web development"
+      }
+    }
+  }
+}
