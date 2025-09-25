@@ -46,52 +46,18 @@ class CIBugFixer extends BugFixer {
     }
 
     parseTestOutput(output) {
-        // Simple approach: extract the full Jest output and find the source file
         const outputText = output.toString();
         
-        // Find source files from stack traces, excluding test/node_modules files
-        const stackMatches = [...outputText.matchAll(/at \w+.*\(([^)]+\.js):\d+:\d+\)/g)];
-        let sourceFile = './index.js'; // default fallback
+        // 1. Find the file to fix from stack traces
+        const stackMatch = outputText.match(/at \w+.*\(([^)]+\.js):\d+:\d+\)/);
+        const sourceFile = stackMatch && !stackMatch[1].includes('.test.') && !stackMatch[1].includes('node_modules')
+            ? (stackMatch[1].startsWith('./') ? stackMatch[1] : './' + stackMatch[1])
+            : './cart.js'; // fallback
         
-        for (const match of stackMatches) {
-            const filePath = match[1];
-            if (!filePath.includes('.test.') && 
-                !filePath.includes('.spec.') && 
-                !filePath.includes('node_modules')) {
-                sourceFile = filePath.startsWith('./') ? filePath : './' + filePath;
-                break; // Use first valid source file found
-            }
-        }
-        
-        // If still default, try to find common files that exist
-        if (sourceFile === './index.js') {
-            const commonFiles = ['./cart.js', './app.js', './main.js', './server.js'];
-            for (const file of commonFiles) {
-                try {
-                    require('fs').accessSync(file);
-                    sourceFile = file;
-                    break;
-                } catch (e) {} // File doesn't exist
-            }
-        }
-        
-        // Extract error context with helpful suggestions
-        let errorMessage = `Jest Test Failures:\n\n${outputText}`;
-        
-        // Add targeted suggestions for common patterns
-        if (outputText.includes('items is not iterable')) {
-            errorMessage += `\n\n💡 SUGGESTION: Handle null items gracefully with: if (items && Array.isArray(items))`;
-        }
-        if (outputText.includes('Cannot read properties of undefined')) {
-            errorMessage += `\n\n💡 SUGGESTION: Check if object exists before accessing properties`;
-        }
-        if (outputText.includes('Expected:') && outputText.includes('Received:')) {
-            errorMessage += `\n\n💡 SUGGESTION: Fix floating point precision with parseFloat(value.toFixed(2))`;
-        }
-        
+        // 2. Pass the error info
         return [{
             file: sourceFile,
-            error: errorMessage
+            error: `Jest test failures:\n\n${outputText}`
         }];
     }
 
