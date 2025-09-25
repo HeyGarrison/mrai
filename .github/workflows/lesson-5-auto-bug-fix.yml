@@ -29,9 +29,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Install AI dependencies  
-        run: npm install ai @ai-sdk/openai
-
       - name: Configure Git
         run: |
           git config user.name "Auto Bug Fixer Bot"

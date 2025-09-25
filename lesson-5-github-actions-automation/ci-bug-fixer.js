@@ -12,83 +12,35 @@ class CIBugFixer extends BugFixer {
             return;
         } catch (error) {
             // Tests failed - let's try to fix them
-            const failures = this.parseTestOutput(error.stdout + error.stderr);
-            console.log(`Found ${failures.length} test failure(s)`);
-
-            // Group failures by file and fix all issues at once
-            const fileFailures = {};
-            for (const failure of failures) {
-                if (!fileFailures[failure.file]) {
-                    fileFailures[failure.file] = [];
-                }
-                fileFailures[failure.file].push(failure.error);
-            }
-
-            let fixedAny = false;
-            for (const [file, errors] of Object.entries(fileFailures)) {
-                console.log(`🔧 Trying to fix all issues in ${file}...`);
-                const combinedError = errors.join('\n\n--- NEXT ISSUE ---\n\n');
-                console.log(`📝 All error contexts:\n${combinedError}`);
-                
-                const result = await this.fixBug(file, combinedError);
-                if (result.success) {
-                    console.log(`✅ Fixed ${file}`);
-                    fixedAny = true;
-                } else {
-                    console.log(`❌ Could not fix ${file}`);
-                }
-            }
-
-            if (fixedAny) {
+            const failure = this.parseTestOutput(error.stdout + error.stderr);
+            console.log(`Found test failure(s)`);
+            console.log(`🔧 Trying to fix all issues in ${failure.file}...`);
+            console.log(`📝 All error contexts:\n${failure.error}`);
+            
+            const result = await this.fixBug(failure.file, failure.error);
+            if (result.success) {
+                console.log(`✅ Fixed ${failure.file}`);
                 this.commitFixes();
+            } else {
+                console.log(`❌ Could not fix ${failure.file}`);
             }
         }
     }
 
     parseTestOutput(output) {
-        const failures = [];
+        const outputText = output.toString();
         
-        // Extract the complete Jest failure information
-        const testOutput = output.toString();
+        // 1. Find the file to fix from stack traces
+        const stackMatch = outputText.match(/at \w+.*\(([^)]+\.js):\d+:\d+\)/);
+        const sourceFile = stackMatch && !stackMatch[1].includes('.test.') && !stackMatch[1].includes('node_modules')
+            ? (stackMatch[1].startsWith('./') ? stackMatch[1] : './' + stackMatch[1])
+            : './cart.js'; // fallback
         
-        // Look for specific test failures and their error details
-        if (testOutput.includes('TypeError: items is not iterable')) {
-            failures.push({
-                file: './cart.js',
-                error: `Jest Test Failure Details:
-
-FAILING TEST: handles null items array
-ERROR: TypeError: items is not iterable at calculateCartTotal (cart.js:5:22)
-ISSUE: The for...of loop on line 5 cannot iterate over null/undefined items
-FIX NEEDED: Add null/undefined check before iterating over items array`
-            });
-        }
-        
-        if (testOutput.includes('Cannot read properties of undefined')) {
-            failures.push({
-                file: './cart.js', 
-                error: `Jest Test Failure Details:
-
-FAILING TEST: handles invalid discount code
-ERROR: TypeError: Cannot read properties of undefined (reading 'percentage') at calculateCartTotal (cart.js:12:52)
-ISSUE: getDiscount() returns undefined for invalid codes, but code tries to read .percentage
-FIX NEEDED: Check if discount exists before accessing .percentage property`
-            });
-        }
-        
-        if (testOutput.includes('25.990000000000002')) {
-            failures.push({
-                file: './cart.js',
-                error: `Jest Test Failure Details:
-
-FAILING TEST: calculates basic cart total correctly
-ERROR: Expected: 25.99, Received: 25.990000000000002
-ISSUE: Floating point precision error in calculation
-FIX NEEDED: Round the subtotal to 2 decimal places using parseFloat(subtotal.toFixed(2))`
-            });
-        }
-        
-        return failures;
+        // 2. Pass the error info
+        return {
+            file: sourceFile,
+            error: `Jest test failures:\n\n${outputText}`
+        };
     }
 
     commitFixes() {
