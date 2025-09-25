@@ -1,25 +1,22 @@
 function calculateCartTotal(items, discountCode, shippingZone) {
+    // Demo: This function has bugs that the auto-fixer should detect and fix
     let subtotal = 0;
-
-    if (items && Array.isArray(items)) {
-        for (let item of items) {
-            subtotal += item.price * item.quantity;
-        }
+    
+    for (let item of items) {
+        subtotal += item.price * item.quantity;
     }
-
+    
     // Apply discount
     if (discountCode) {
         const discount = getDiscount(discountCode);
-        if (discount) {
-            subtotal = subtotal - (subtotal * discount.percentage / 100);
-        }
+        subtotal = subtotal - (subtotal * discount.percentage / 100);
     }
-
+    
     // Add shipping
     const shippingCost = calculateShipping(subtotal, shippingZone);
-    const total = parseFloat((subtotal + shippingCost).toFixed(2));
-
-    return { subtotal: parseFloat(subtotal.toFixed(2)), shippingCost, total };
+    const total = subtotal + shippingCost;
+    
+    return { subtotal, shippingCost, total };
 }
 
 function getDiscount(code) {
