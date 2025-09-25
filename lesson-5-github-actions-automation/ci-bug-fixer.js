@@ -46,49 +46,53 @@ class CIBugFixer extends BugFixer {
     }
 
     parseTestOutput(output) {
-        const failures = [];
+        // Simple approach: extract the full Jest output and find the source file
+        const outputText = output.toString();
         
-        // Extract the complete Jest failure information
-        const testOutput = output.toString();
+        // Find source files from stack traces, excluding test/node_modules files
+        const stackMatches = [...outputText.matchAll(/at \w+.*\(([^)]+\.js):\d+:\d+\)/g)];
+        let sourceFile = './index.js'; // default fallback
         
-        // Look for specific test failures and their error details
-        if (testOutput.includes('TypeError: items is not iterable')) {
-            failures.push({
-                file: './cart.js',
-                error: `Jest Test Failure Details:
-
-FAILING TEST: handles null items array
-ERROR: TypeError: items is not iterable at calculateCartTotal (cart.js:5:22)
-ISSUE: The for...of loop on line 5 cannot iterate over null/undefined items
-FIX NEEDED: Add null/undefined check before iterating over items array`
-            });
+        for (const match of stackMatches) {
+            const filePath = match[1];
+            if (!filePath.includes('.test.') && 
+                !filePath.includes('.spec.') && 
+                !filePath.includes('node_modules')) {
+                sourceFile = filePath.startsWith('./') ? filePath : './' + filePath;
+                break; // Use first valid source file found
+            }
         }
         
-        if (testOutput.includes('Cannot read properties of undefined')) {
-            failures.push({
-                file: './cart.js', 
-                error: `Jest Test Failure Details:
-
-FAILING TEST: handles invalid discount code
-ERROR: TypeError: Cannot read properties of undefined (reading 'percentage') at calculateCartTotal (cart.js:12:52)
-ISSUE: getDiscount() returns undefined for invalid codes, but code tries to read .percentage
-FIX NEEDED: Check if discount exists before accessing .percentage property`
-            });
+        // If still default, try to find common files that exist
+        if (sourceFile === './index.js') {
+            const commonFiles = ['./cart.js', './app.js', './main.js', './server.js'];
+            for (const file of commonFiles) {
+                try {
+                    require('fs').accessSync(file);
+                    sourceFile = file;
+                    break;
+                } catch (e) {} // File doesn't exist
+            }
         }
         
-        if (testOutput.includes('25.990000000000002')) {
-            failures.push({
-                file: './cart.js',
-                error: `Jest Test Failure Details:
-
-FAILING TEST: calculates basic cart total correctly
-ERROR: Expected: 25.99, Received: 25.990000000000002
-ISSUE: Floating point precision error in calculation
-FIX NEEDED: Round the subtotal to 2 decimal places using parseFloat(subtotal.toFixed(2))`
-            });
+        // Extract error context with helpful suggestions
+        let errorMessage = `Jest Test Failures:\n\n${outputText}`;
+        
+        // Add targeted suggestions for common patterns
+        if (outputText.includes('items is not iterable')) {
+            errorMessage += `\n\n💡 SUGGESTION: Handle null items gracefully with: if (items && Array.isArray(items))`;
+        }
+        if (outputText.includes('Cannot read properties of undefined')) {
+            errorMessage += `\n\n💡 SUGGESTION: Check if object exists before accessing properties`;
+        }
+        if (outputText.includes('Expected:') && outputText.includes('Received:')) {
+            errorMessage += `\n\n💡 SUGGESTION: Fix floating point precision with parseFloat(value.toFixed(2))`;
         }
         
-        return failures;
+        return [{
+            file: sourceFile,
+            error: errorMessage
+        }];
     }
 
     commitFixes() {
