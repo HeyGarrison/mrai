@@ -1,0 +1,23 @@
+{
+  "prompts": {
+    "codeReviewer": {
+      "template": "enterprise",
+      "customVariables": {
+        "complianceFrameworks": "SOC2, GDPR, HIPAA",
+        "securityFocus": "data protection and access control"
+      }
+    },
+    "bugFixer": {
+      "template": "security",
+      "customVariables": {
+        "securityRequirements": "All fixes must pass security scan"
+      }
+    },
+    "documentationWriter": {
+      "template": "api",
+      "customVariables": {
+        "securityNotice": "All endpoints require authentication"
+      }
+    }
+  }
+}

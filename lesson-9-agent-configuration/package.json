@@ -1,0 +1,26 @@
+{
+  "name": "lesson-9-agent-configuration",
+  "version": "1.0.0",
+  "description": "Agent configuration system for customizing strategic agents",
+  "main": "agent-config.js",
+  "type": "module",
+  "scripts": {
+    "test-config": "node config-test.js",
+    "create-config": "node -e \"import('./agent-config.js').then(m => new m.AgentConfig())\""
+  },
+  "keywords": [
+    "ai",
+    "configuration",
+    "agents",
+    "customization",
+    "team-settings"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@ai-sdk/openai": "^0.0.66",
+    "ai": "^4.0.0",
+    "defu": "^6.1.4",
+    "dotenv": "^16.4.5"
+  }
+}

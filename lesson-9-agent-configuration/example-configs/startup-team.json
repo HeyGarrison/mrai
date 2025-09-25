@@ -1,0 +1,20 @@
+{
+  "global": {
+    "model": "gpt-4o-mini"
+  },
+  "codeReviewer": {
+    "focusAreas": ["bugs", "security"],
+    "severity": "low",
+    "excludePatterns": ["*.test.js", "docs/**", "examples/**"]
+  },
+  "bugFixer": {
+    "attemptComplexFixes": true,
+    "safetyLevel": "medium",
+    "maxAttemptsPerFile": 5,
+    "autoCommit": true
+  },
+  "documentationWriter": {
+    "style": "brief",
+    "voiceAndTone": "casual"
+  }
+}

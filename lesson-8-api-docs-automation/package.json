@@ -1,0 +1,25 @@
+{
+  "name": "lesson-8-api-docs-automation",
+  "version": "1.0.0",
+  "description": "Automatic API documentation generation with GitHub Actions",
+  "main": "api-doc-generator.js",
+  "type": "module",
+  "scripts": {
+    "test-docs": "node test-api-docs.js",
+    "generate-api-docs": "node -e \"import('./api-doc-generator.js').then(m => new m.APIDocumentationGenerator().generateAPIDocs())\""
+  },
+  "keywords": [
+    "api",
+    "documentation",
+    "automation",
+    "github-actions",
+    "nitro"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@ai-sdk/openai": "^0.0.66",
+    "ai": "^4.0.0",
+    "dotenv": "^16.4.5"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "lesson-10-custom-prompts",
+  "version": "1.0.0",
+  "description": "Custom prompt templates and configuration for strategic agents",
+  "main": "prompt-templates.js",
+  "type": "module",
+  "scripts": {
+    "build-template": "node template-builder.js",
+    "test-templates": "node template-tester.js",
+    "test-config": "node -e \"import('./agent-config.js').then(m => console.log('Config loaded:', new m.AgentConfig().prompts))\""
+  },
+  "keywords": [
+    "ai",
+    "prompts",
+    "templates",
+    "customization",
+    "agents",
+    "configuration"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@ai-sdk/openai": "^0.0.66",
+    "ai": "^4.0.0",
+    "defu": "^6.1.4",
+    "dotenv": "^16.4.5"
+  }
+}

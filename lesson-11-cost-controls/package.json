@@ -1,0 +1,28 @@
+{
+  "name": "lesson-11-cost-controls",
+  "version": "1.0.0",
+  "description": "GitHub-integrated cost controls and usage tracking for AI agents",
+  "main": "github-cost-tracker.js",
+  "type": "module",
+  "scripts": {
+    "setup-budget": "node setup-budget.js",
+    "test-costs": "node test-github-costs.js",
+    "check-usage": "node -e \"import('./github-cost-tracker.js').then(m => console.log(new m.GitHubCostTracker().usage))\""
+  },
+  "keywords": [
+    "ai",
+    "cost-tracking",
+    "github-integration",
+    "budget-controls",
+    "usage-monitoring"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@ai-sdk/openai": "^0.0.66",
+    "@octokit/rest": "^20.1.1",
+    "ai": "^4.0.0",
+    "defu": "^6.1.4",
+    "dotenv": "^16.4.5"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "lesson-7-documentation-writer",
+  "version": "1.0.0",
+  "description": "Strategic Agent for automatic code documentation generation",
+  "main": "doc-writer.js",
+  "type": "module",
+  "scripts": {
+    "doc": "node doc-writer.js",
+    "doc-api": "node doc-writer.js api/users.js",
+    "doc-utils": "node doc-writer.js utils/helpers.js"
+  },
+  "keywords": [
+    "ai",
+    "documentation",
+    "automation",
+    "strategic-agent",
+    "docs-generation"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@ai-sdk/openai": "^0.0.66",
+    "ai": "^4.0.0",
+    "dotenv": "^16.4.5"
+  }
+}
