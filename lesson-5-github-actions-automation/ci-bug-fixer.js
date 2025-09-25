@@ -18,11 +18,14 @@ class CIBugFixer extends BugFixer {
             let fixedAny = false;
             for (const failure of failures) {
                 console.log(`🔧 Trying to fix ${failure.file}...`);
+                console.log(`📝 Error context: ${failure.error}`);
                 
                 const result = await this.fixBug(failure.file, failure.error);
                 if (result.success) {
                     console.log(`✅ Fixed ${failure.file}`);
                     fixedAny = true;
+                } else {
+                    console.log(`❌ Could not fix ${failure.file}`);
                 }
             }
 
@@ -52,7 +55,7 @@ class CIBugFixer extends BugFixer {
             // For this demo, we know cart.js is the file that needs fixing
             failures.push({
                 file: './cart.js',
-                error: 'Multiple test failures: null items handling, invalid discount codes, floating point precision'
+                error: 'Tests expect graceful handling: null items should return zero totals, invalid discount codes should be ignored, fix floating point precision'
             });
         }
         
