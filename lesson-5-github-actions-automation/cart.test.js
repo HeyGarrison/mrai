@@ -25,14 +25,18 @@ describe('Cart Total Calculation', () => {
     });
 
     test('handles null items array', () => {
-        // This test will fail due to the bug
-        expect(() => calculateCartTotal(null, null, 'domestic')).not.toThrow();
+        // Should handle null gracefully and return zero totals
+        const result = calculateCartTotal(null, null, 'domestic');
+        expect(result.subtotal).toBe(0);
+        expect(result.total).toBeGreaterThanOrEqual(0); // Should include shipping
     });
 
     test('handles invalid discount code', () => {
         const items = [{ price: 10.00, quantity: 1 }];
         
-        // This test will fail due to the bug
-        expect(() => calculateCartTotal(items, 'INVALID', 'domestic')).not.toThrow();
+        // Should ignore invalid discount codes and calculate normally
+        const result = calculateCartTotal(items, 'INVALID', 'domestic');
+        expect(result.subtotal).toBe(10.00);
+        expect(result.total).toBeGreaterThan(10.00); // Should include shipping
     });
 });
