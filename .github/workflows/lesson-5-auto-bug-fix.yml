@@ -1,0 +1,44 @@
+name: Lesson 5 - Auto Bug Fix Demo
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'lesson-5-github-actions-automation/**'
+
+jobs:
+  auto-fix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    defaults:
+      run:
+        working-directory: lesson-5-github-actions-automation
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install AI dependencies  
+        run: npm install ai @ai-sdk/openai
+
+      - name: Configure Git
+        run: |
+          git config user.name "Auto Bug Fixer Bot"
+          git config user.email "action@github.com"
+
+      - name: Run CI Bug Fixer
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node ci-bug-fixer.js

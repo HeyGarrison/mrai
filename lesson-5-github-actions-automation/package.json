@@ -1,0 +1,33 @@
+{
+  "name": "lesson-5-github-actions-automation",
+  "version": "1.0.0",
+  "description": "Strategic Agent with GitHub Actions automation for bug fixing",
+  "main": "ci-bug-fixer.js",
+  "type": "module",
+  "scripts": {
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "ci-fix": "node ci-bug-fixer.js"
+  },
+  "keywords": [
+    "ai",
+    "bug-fixing",
+    "automation",
+    "github-actions",
+    "ci-cd"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@ai-sdk/openai": "^0.0.66",
+    "ai": "^4.3.19",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "transform": {}
+  }
+}
