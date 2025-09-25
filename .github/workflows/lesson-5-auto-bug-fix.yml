@@ -9,6 +9,9 @@ on:
 jobs:
   auto-fix:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     defaults:
       run:
         working-directory: lesson-5-github-actions-automation
@@ -17,6 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref }}
 
       - uses: actions/setup-node@v4
         with:
