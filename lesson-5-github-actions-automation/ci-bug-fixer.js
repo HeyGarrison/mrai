@@ -46,49 +46,19 @@ class CIBugFixer extends BugFixer {
     }
 
     parseTestOutput(output) {
-        const failures = [];
+        const outputText = output.toString();
         
-        // Extract the complete Jest failure information
-        const testOutput = output.toString();
+        // 1. Find the file to fix from stack traces
+        const stackMatch = outputText.match(/at \w+.*\(([^)]+\.js):\d+:\d+\)/);
+        const sourceFile = stackMatch && !stackMatch[1].includes('.test.') && !stackMatch[1].includes('node_modules')
+            ? (stackMatch[1].startsWith('./') ? stackMatch[1] : './' + stackMatch[1])
+            : './cart.js'; // fallback
         
-        // Look for specific test failures and their error details
-        if (testOutput.includes('TypeError: items is not iterable')) {
-            failures.push({
-                file: './cart.js',
-                error: `Jest Test Failure Details:
-
-FAILING TEST: handles null items array
-ERROR: TypeError: items is not iterable at calculateCartTotal (cart.js:5:22)
-ISSUE: The for...of loop on line 5 cannot iterate over null/undefined items
-FIX NEEDED: Add null/undefined check before iterating over items array`
-            });
-        }
-        
-        if (testOutput.includes('Cannot read properties of undefined')) {
-            failures.push({
-                file: './cart.js', 
-                error: `Jest Test Failure Details:
-
-FAILING TEST: handles invalid discount code
-ERROR: TypeError: Cannot read properties of undefined (reading 'percentage') at calculateCartTotal (cart.js:12:52)
-ISSUE: getDiscount() returns undefined for invalid codes, but code tries to read .percentage
-FIX NEEDED: Check if discount exists before accessing .percentage property`
-            });
-        }
-        
-        if (testOutput.includes('25.990000000000002')) {
-            failures.push({
-                file: './cart.js',
-                error: `Jest Test Failure Details:
-
-FAILING TEST: calculates basic cart total correctly
-ERROR: Expected: 25.99, Received: 25.990000000000002
-ISSUE: Floating point precision error in calculation
-FIX NEEDED: Round the subtotal to 2 decimal places using parseFloat(subtotal.toFixed(2))`
-            });
-        }
-        
-        return failures;
+        // 2. Pass the error info
+        return [{
+            file: sourceFile,
+            error: `Jest test failures:\n\n${outputText}`
+        }];
     }
 
     commitFixes() {
