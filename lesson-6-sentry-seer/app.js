@@ -1,43 +1,71 @@
-// app.js - local test application
+// app.js - Simple Express API for Sentry Seer production error fixing demo
 import * as Sentry from '@sentry/node';
+import express from 'express';
 import 'dotenv/config';
 
-// Initialize Sentry with your DSN
+// Initialize Sentry
 Sentry.init({
-  dsn: process.env.SENTRY_DSN
+    dsn: process.env.SENTRY_DSN,
+    environment: 'demo',
+    tracesSampleRate: 1.0,
 });
 
-// Buggy function that will trigger Seer
-function processPayment(orderId) {
-    console.log(`Processing payment for order: ${orderId}`);
+const app = express();
+const PORT = 3000;
 
-    const order = getOrder(orderId);
+// Sentry request handler must be first
+app.use(Sentry.Handlers.requestHandler());
 
-    // Bug: order could be null, but we don't check
+// Simple routes that demonstrate common production errors
+
+// GET /orders/:id - Demonstrates null pointer errors
+app.get('/orders/:id', (req, res) => {
+    const order = getOrder(req.params.id);
+
+    // BUG #1: order could be null, but we don't check before accessing .items
     const amount = order.items.reduce((sum, item) => sum + item.price, 0);
 
-    if (amount > 0) {
-        return { success: true, amount };
-    }
+    res.json({ success: true, orderId: req.params.id, amount });
+});
 
-    throw new Error('Invalid payment amount');
-}
+// GET /inventory/:productId - Demonstrates undefined property access
+app.get('/inventory/:productId', (req, res) => {
+    const product = getProduct(req.params.productId);
 
+    // BUG #2: product.inventory might be undefined, causing errors
+    const available = product.inventory.quantity > 0;
+
+    res.json({ available, quantity: product.inventory.quantity });
+});
+
+// Mock database functions
 function getOrder(id) {
-    // Simulate database lookup that sometimes returns null
+    // Sometimes returns null (like a missing database record)
     return Math.random() > 0.5 ? {
-        items: [{ price: 10.99 }]
+        id,
+        items: [{ name: 'Widget', price: 10.99 }]
     } : null;
 }
 
-// Trigger the error multiple times to ensure Sentry catches it
-setInterval(() => {
-    try {
-        processPayment('test-order-' + Date.now());
-    } catch (error) {
-        console.error('Error caught:', error.message);
-        Sentry.captureException(error);
-    }
-}, 3000);
+function getProduct(id) {
+    // Sometimes missing inventory data
+    return Math.random() > 0.3 ? {
+        id,
+        name: 'Sample Product',
+        inventory: { quantity: Math.floor(Math.random() * 10) }
+    } : {
+        id,
+        name: 'Sample Product'
+        // Missing inventory property
+    };
+}
 
-console.log('App running - generating errors for Sentry Seer...');
+// Sentry error handler must be after routes
+app.use(Sentry.Handlers.errorHandler());
+
+app.listen(PORT, () => {
+    console.log(`🚀 Server running on http://localhost:${PORT}`);
+    console.log('📊 Try these endpoints to generate Sentry errors:');
+    console.log(`   GET http://localhost:${PORT}/orders/123`);
+    console.log(`   GET http://localhost:${PORT}/inventory/456`);
+});
