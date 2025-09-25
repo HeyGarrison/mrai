@@ -25,7 +25,7 @@ function getDiscount(code) {
         'SAVE20': { percentage: 20 },
         'SAVE10': { percentage: 10 }
     };
-    return discounts[code] || null;
+    return discounts[code];
 }
 
 function calculateShipping(subtotal, zone) {

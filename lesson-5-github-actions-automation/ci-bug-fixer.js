@@ -12,35 +12,17 @@ class CIBugFixer extends BugFixer {
             return;
         } catch (error) {
             // Tests failed - let's try to fix them
-            const failures = this.parseTestOutput(error.stdout + error.stderr);
-            console.log(`Found ${failures.length} test failure(s)`);
-
-            // Group failures by file and fix all issues at once
-            const fileFailures = {};
-            for (const failure of failures) {
-                if (!fileFailures[failure.file]) {
-                    fileFailures[failure.file] = [];
-                }
-                fileFailures[failure.file].push(failure.error);
-            }
-
-            let fixedAny = false;
-            for (const [file, errors] of Object.entries(fileFailures)) {
-                console.log(`🔧 Trying to fix all issues in ${file}...`);
-                const combinedError = errors.join('\n\n--- NEXT ISSUE ---\n\n');
-                console.log(`📝 All error contexts:\n${combinedError}`);
-                
-                const result = await this.fixBug(file, combinedError);
-                if (result.success) {
-                    console.log(`✅ Fixed ${file}`);
-                    fixedAny = true;
-                } else {
-                    console.log(`❌ Could not fix ${file}`);
-                }
-            }
-
-            if (fixedAny) {
+            const failure = this.parseTestOutput(error.stdout + error.stderr);
+            console.log(`Found test failure(s)`);
+            console.log(`🔧 Trying to fix all issues in ${failure.file}...`);
+            console.log(`📝 All error contexts:\n${failure.error}`);
+            
+            const result = await this.fixBug(failure.file, failure.error);
+            if (result.success) {
+                console.log(`✅ Fixed ${failure.file}`);
                 this.commitFixes();
+            } else {
+                console.log(`❌ Could not fix ${failure.file}`);
             }
         }
     }
@@ -55,10 +37,10 @@ class CIBugFixer extends BugFixer {
             : './cart.js'; // fallback
         
         // 2. Pass the error info
-        return [{
+        return {
             file: sourceFile,
             error: `Jest test failures:\n\n${outputText}`
-        }];
+        };
     }
 
     commitFixes() {
