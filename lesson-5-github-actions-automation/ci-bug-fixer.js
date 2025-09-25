@@ -15,17 +15,27 @@ class CIBugFixer extends BugFixer {
             const failures = this.parseTestOutput(error.stdout + error.stderr);
             console.log(`Found ${failures.length} test failure(s)`);
 
-            let fixedAny = false;
+            // Group failures by file and fix all issues at once
+            const fileFailures = {};
             for (const failure of failures) {
-                console.log(`🔧 Trying to fix ${failure.file}...`);
-                console.log(`📝 Error context: ${failure.error}`);
+                if (!fileFailures[failure.file]) {
+                    fileFailures[failure.file] = [];
+                }
+                fileFailures[failure.file].push(failure.error);
+            }
+
+            let fixedAny = false;
+            for (const [file, errors] of Object.entries(fileFailures)) {
+                console.log(`🔧 Trying to fix all issues in ${file}...`);
+                const combinedError = errors.join('\n\n--- NEXT ISSUE ---\n\n');
+                console.log(`📝 All error contexts:\n${combinedError}`);
                 
-                const result = await this.fixBug(failure.file, failure.error);
+                const result = await this.fixBug(file, combinedError);
                 if (result.success) {
-                    console.log(`✅ Fixed ${failure.file}`);
+                    console.log(`✅ Fixed ${file}`);
                     fixedAny = true;
                 } else {
-                    console.log(`❌ Could not fix ${failure.file}`);
+                    console.log(`❌ Could not fix ${file}`);
                 }
             }
 
@@ -37,25 +47,44 @@ class CIBugFixer extends BugFixer {
 
     parseTestOutput(output) {
         const failures = [];
-        const lines = output.split('\n');
         
-        for (const line of lines) {
-            // Look for Jest failure patterns - but ignore test files
-            const match = line.match(/FAIL\s+(.+\.js)/);
-            if (match && !match[1].includes('.test.') && !match[1].includes('.spec.')) {
-                failures.push({
-                    file: match[1],
-                    error: 'Test failure detected'
-                });
-            }
-        }
+        // Extract the complete Jest failure information
+        const testOutput = output.toString();
         
-        // If no source files found in FAIL lines, look for the actual source files being tested
-        if (failures.length === 0) {
-            // For this demo, we know cart.js is the file that needs fixing
+        // Look for specific test failures and their error details
+        if (testOutput.includes('TypeError: items is not iterable')) {
             failures.push({
                 file: './cart.js',
-                error: 'Tests expect graceful handling: null items should return zero totals, invalid discount codes should be ignored, fix floating point precision'
+                error: `Jest Test Failure Details:
+
+FAILING TEST: handles null items array
+ERROR: TypeError: items is not iterable at calculateCartTotal (cart.js:5:22)
+ISSUE: The for...of loop on line 5 cannot iterate over null/undefined items
+FIX NEEDED: Add null/undefined check before iterating over items array`
+            });
+        }
+        
+        if (testOutput.includes('Cannot read properties of undefined')) {
+            failures.push({
+                file: './cart.js', 
+                error: `Jest Test Failure Details:
+
+FAILING TEST: handles invalid discount code
+ERROR: TypeError: Cannot read properties of undefined (reading 'percentage') at calculateCartTotal (cart.js:12:52)
+ISSUE: getDiscount() returns undefined for invalid codes, but code tries to read .percentage
+FIX NEEDED: Check if discount exists before accessing .percentage property`
+            });
+        }
+        
+        if (testOutput.includes('25.990000000000002')) {
+            failures.push({
+                file: './cart.js',
+                error: `Jest Test Failure Details:
+
+FAILING TEST: calculates basic cart total correctly
+ERROR: Expected: 25.99, Received: 25.990000000000002
+ISSUE: Floating point precision error in calculation
+FIX NEEDED: Round the subtotal to 2 decimal places using parseFloat(subtotal.toFixed(2))`
             });
         }
         
