@@ -1,4 +1,5 @@
 function calculateCartTotal(items, discountCode, shippingZone) {
+    // Demo: This function has bugs that the auto-fixer should detect and fix
     let subtotal = 0;
     
     for (let item of items) {
