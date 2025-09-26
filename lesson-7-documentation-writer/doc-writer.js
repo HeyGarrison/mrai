@@ -38,7 +38,7 @@ class DocumentationWriter {
     }
 
     async analyzeCode(code, filename, existingReadme) {
-        const prompt = `You are a technical documentation expert. Analyze this code and generate comprehensive documentation.
+        const prompt = `You are a technical documentation expert. Analyze this code and generate comprehensive, professional documentation.
 
 **File:** ${filename}
 **Current README context (first 500 chars):**
@@ -50,19 +50,25 @@ ${code}
 \`\`\`
 
 Generate documentation that includes:
-1. **Function documentation** - Clear descriptions of what each function does
-2. **Parameter details** - Types, requirements, and examples
-3. **Usage examples** - Practical code examples showing how to use the functions
-4. **README section** - Summary for the main README file
+1. **Function documentation** - Clear descriptions with JSDoc-style comments
+2. **Parameter details** - Types, requirements, validation rules, and examples
+3. **Usage examples** - Copy-paste ready code examples with expected outputs
+4. **Error handling** - What errors can be thrown and when
+5. **README section** - Concise summary for the main README file
 
-Provide clear, practical documentation that helps developers understand and use this code effectively. Especially, via copy and paste.
+Requirements:
+- Use JSDoc format for function documentation
+- Include TypeScript-style type annotations in examples
+- Provide realistic usage examples with sample data
+- Document error cases and edge cases
+- Keep README section brief but informative
 
 Format your response as:
 ## README Section
-[Brief description for README.md]
+[Brief description for README.md with installation/usage]
 
 ## Function Documentation  
-[Detailed function docs with examples]`;
+[Detailed JSDoc function docs with typed examples and error cases]`;
 
         const { text } = await generateText({
             model: openai(this.model),
@@ -82,14 +88,19 @@ Format your response as:
     }
 
     async updateDocumentation(filename, docs) {
-        // Create docs directory if it doesn't exist
-        fs.mkdirSync('docs', { recursive: true });
+        // Mirror the source file structure in docs/
+        const relativePath = path.dirname(filename);
+        const docsDir = path.join('docs', relativePath);
+        
+        // Create directory structure
+        fs.mkdirSync(docsDir, { recursive: true });
 
-        // Save detailed documentation
-        const docFilename = `docs/${path.basename(filename, '.js')}.md`;
+        // Save detailed documentation maintaining folder structure
+        const docFilename = path.join('docs', filename.replace('.js', '.md'));
         const docContent = `# ${path.basename(filename)} Documentation
 
 Generated: ${new Date().toISOString()}
+Source: ${filename}
 
 ${docs}`;
 
@@ -117,8 +128,11 @@ ${docs}`;
             // Update existing section
             readme = readme.replace(sectionRegex, `${sectionTitle}\n\n${readmeContent}\n\n`);
         } else {
-            // Add new section
-            readme += `\n${sectionTitle}\n\n${readmeContent}\n\n`;
+            // Add new section - ensure proper spacing
+            if (!readme.endsWith('\n')) {
+                readme += '\n';
+            }
+            readme += `\n${sectionTitle}\n\n${readmeContent}\n`;
         }
 
         fs.writeFileSync('README.md', readme);
