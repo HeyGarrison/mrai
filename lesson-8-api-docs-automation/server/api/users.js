@@ -49,4 +49,4 @@ async function createUser(event) {
   };
   
   return { user: newUser, message: 'User created successfully' };
-}
+}// Updated for testing
