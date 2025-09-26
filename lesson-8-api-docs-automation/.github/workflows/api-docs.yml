@@ -26,8 +26,8 @@ jobs:
         with:
           node-version: '18'
 
-      - run: npm install
-      - run: npm install ai @ai-sdk/openai
+       - run: npm install
+       - run: npm install ai @ai-sdk/openai @octokit/rest
 
       - name: Configure Git
         run: |
@@ -37,19 +37,7 @@ jobs:
       - name: Generate API documentation
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: node -e "
-          import('./api-doc-generator.js').then(module => {
-            const generator = new module.APIDocumentationGenerator();
-            return generator.generateAPIDocs();
-          }).catch(console.error);
-        "
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: node ci-doc-writer.js
 
-      - name: Commit documentation updates
-        run: |
-          git add docs/
-          if ! git diff --staged --quiet; then
-            git commit -m "📚 Update API documentation"
-            git push
-          else
-            echo "No documentation changes to commit"
-          fi
