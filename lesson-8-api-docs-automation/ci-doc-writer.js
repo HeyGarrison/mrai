@@ -54,13 +54,18 @@ class CIDocumentationWriter extends DocumentationWriter {
             // Get files changed in the last commit
             const output = execSync('git diff --name-only HEAD~1 HEAD', { encoding: 'utf8' });
             
-            return output
+            const changedFiles = output
                 .split('\n')
                 .filter(file => file.trim())
+                .map(file => file.replace(/^[^\/]*\//, '')) // Remove lesson directory prefix
                 .filter(file => this.isAPIFile(file))
                 .filter(file => fs.existsSync(file));
+                
+            console.log('Changed files detected:', changedFiles);
+            return changedFiles;
         } catch (error) {
             // If git diff fails, scan all API files
+            console.log('Git diff failed, scanning all API files');
             return this.getAllAPIFiles();
         }
     }

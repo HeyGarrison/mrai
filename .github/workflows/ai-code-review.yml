@@ -1,14 +1,15 @@
 name: AI Code Review
 
-on:
-  pull_request:
-    types: [opened, synchronize]
-    paths:
-      - '**.js'
-      - '**.ts'
-      - '**.jsx'
-      - '**.tsx'
-      - '**.py'
+# Temporarily disabled for lesson recording
+# on:
+#   pull_request:
+#     types: [opened, synchronize]
+#     paths:
+#       - '**.js'
+#       - '**.ts'
+#       - '**.jsx'
+#       - '**.tsx'
+#       - '**.py'
 
 jobs:
   ai-review:

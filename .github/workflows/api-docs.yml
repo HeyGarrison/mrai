@@ -1,22 +1,19 @@
 name: API Documentation
 
 on:
-  push:
-    paths:
-      - 'api/**'
-      - 'server/api/**' 
-      - 'routes/**'
-      - 'endpoints/**'
   pull_request:
     paths:
-      - 'api/**'
-      - 'server/api/**'
-      - 'routes/**'
-      - 'endpoints/**'
+      - 'lesson-8-api-docs-automation/api/**'
+      - 'lesson-8-api-docs-automation/server/api/**' 
+      - 'lesson-8-api-docs-automation/routes/**'
+      - 'lesson-8-api-docs-automation/endpoints/**'
 
 jobs:
   update-docs:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: lesson-8-api-docs-automation
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,8 +23,7 @@ jobs:
         with:
           node-version: '18'
 
-       - run: npm install
-       - run: npm install ai @ai-sdk/openai @octokit/rest
+      - run: npm install
 
       - name: Configure Git
         run: |
