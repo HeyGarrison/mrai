@@ -22,6 +22,15 @@ app.use(Sentry.Handlers.requestHandler());
 app.get('/orders/:id', (req, res) => {
   const order = getOrder(req.params.id);
 
+  // Check if order exists
+  if (!order) {
+    return res.status(404).json({ 
+      error: 'Order not found',
+      success: false,
+      orderId: req.params.id
+    });
+  }
+
   const amount = order.items.reduce((sum, item) => sum + item.price, 0);
 
   res.json({ success: true, orderId: req.params.id, amount });
@@ -30,6 +39,15 @@ app.get('/orders/:id', (req, res) => {
 // GET /inventory/:productId - Demonstrates undefined property access
 app.get('/inventory/:productId', (req, res) => {
   const product = getProduct(req.params.productId);
+
+  // Check if inventory data is available
+  if (!product.inventory) {
+    return res.status(404).json({ 
+      error: 'Inventory data not available for this product',
+      available: false,
+      quantity: 0
+    });
+  }
 
   const available = product.inventory.quantity > 0;
 
