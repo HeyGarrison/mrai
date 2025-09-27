@@ -2,11 +2,11 @@
   "name": "lesson-8-api-docs-automation",
   "version": "1.0.0",
   "description": "Automatic API documentation generation with GitHub Actions",
-  "main": "api-doc-generator.js",
+  "main": "ci-doc-writer.js",
   "type": "module",
   "scripts": {
-    "test-docs": "node test-api-docs.js",
-    "generate-api-docs": "node -e \"import('./api-doc-generator.js').then(m => new m.APIDocumentationGenerator().generateAPIDocs())\""
+    "doc:local": "node doc-writer.js",
+    "doc:ci": "node ci-doc-writer.js"
   },
   "keywords": [
     "api",
@@ -19,7 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "@ai-sdk/openai": "^0.0.66",
-    "@octokit/rest": "^22.0.0",
+    "@octokit/rest": "^20.1.1",
     "ai": "^4.0.0",
     "dotenv": "^16.4.5"
   }

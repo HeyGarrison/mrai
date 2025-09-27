@@ -21,8 +21,15 @@ class CIDocumentationWriter extends DocumentationWriter {
             const changedFiles = this.getChangedAPIFiles();
             
             if (changedFiles.length === 0) {
-                console.log('✅ No API changes detected');
-                return;
+                console.log('✅ No API changes detected in git diff, scanning all API files...');
+                const allApiFiles = this.getAllAPIFiles();
+                if (allApiFiles.length === 0) {
+                    console.log('✅ No API files found');
+                    return;
+                }
+                // Use first API file for demo purposes
+                changedFiles.push(allApiFiles[0]);
+                console.log(`🎯 Demo mode: Processing ${allApiFiles[0]}`);
             }
 
             console.log(`📝 Documenting ${changedFiles.length} changed API file(s)...`);
@@ -54,13 +61,18 @@ class CIDocumentationWriter extends DocumentationWriter {
             // Get files changed in the last commit
             const output = execSync('git diff --name-only HEAD~1 HEAD', { encoding: 'utf8' });
             
-            return output
+            const changedFiles = output
                 .split('\n')
                 .filter(file => file.trim())
+                .map(file => file.replace(/^[^\/]*\//, '')) // Remove lesson directory prefix
                 .filter(file => this.isAPIFile(file))
                 .filter(file => fs.existsSync(file));
+                
+            console.log('Changed files detected:', changedFiles);
+            return changedFiles;
         } catch (error) {
             // If git diff fails, scan all API files
+            console.log('Git diff failed, scanning all API files');
             return this.getAllAPIFiles();
         }
     }
@@ -105,7 +117,8 @@ class CIDocumentationWriter extends DocumentationWriter {
 
     commitDocChanges(files) {
         try {
-            execSync('git add docs/ README.md', { stdio: 'pipe' });
+            console.log('📁 Adding files to git...');
+            execSync('git add docs/ README.md', { stdio: 'inherit' });
             
             // Check if there are changes to commit
             try {
@@ -113,15 +126,21 @@ class CIDocumentationWriter extends DocumentationWriter {
                 console.log('No documentation changes to commit');
                 return;
             } catch {
-                // There are staged changes, proceed with commit
+                console.log('📝 Found staged changes, proceeding with commit...');
             }
             
             const fileList = files.map(f => path.basename(f)).join(', ');
-            execSync(`git commit -m "📚 Auto-update docs for: ${fileList}"`, { stdio: 'pipe' });
-            execSync('git push', { stdio: 'pipe' });
+            console.log(`🚀 Committing docs for: ${fileList}`);
+            execSync(`git commit -m "📚 Auto-update docs for: ${fileList}"`, { stdio: 'inherit' });
+            
+            console.log('📤 Pushing to remote...');
+            execSync('git push', { stdio: 'inherit' });
             console.log('✅ Documentation committed and pushed');
         } catch (error) {
             console.log('❌ Failed to commit documentation changes');
+            console.error('Error details:', error.message);
+            console.error('Status:', error.status);
+            console.error('Output:', error.output?.toString());
         }
     }
 

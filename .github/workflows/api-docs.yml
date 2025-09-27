@@ -1,0 +1,47 @@
+name: API Documentation
+
+on:
+  pull_request:
+    paths:
+      - 'lesson-8-api-docs-automation/api/**'
+      - 'lesson-8-api-docs-automation/server/api/**' 
+      - 'lesson-8-api-docs-automation/routes/**'
+      - 'lesson-8-api-docs-automation/endpoints/**'
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    defaults:
+      run:
+        working-directory: lesson-8-api-docs-automation
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2  # Need at least 2 commits for git diff
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.head_ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - run: npm install
+
+      - name: Configure Git
+        run: |
+          git config user.name "API Doc Bot"
+          git config user.email "action@github.com"
+
+      - name: Generate API documentation
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node ci-doc-writer.js
+
