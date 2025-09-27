@@ -26,8 +26,10 @@ export default defineEventHandler(async (event) => {
                 id: 1,
                 email: 'admin@example.com',
                 name: 'Admin User',
-                role: 'admin'
+                role: 'admin',
+                permissions: ['read', 'write', 'delete']
             },
+            expiresIn: '24h',
             message: 'Login successful'
         };
     }

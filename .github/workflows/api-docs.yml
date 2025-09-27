@@ -34,7 +34,7 @@ jobs:
       - name: Configure Git
         run: |
           git config user.name "API Doc Bot"
-          git config user.email "docs@github.com"
+          git config user.email "action@github.com"
 
       - name: Generate API documentation
         env:
