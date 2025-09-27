@@ -11,6 +11,10 @@ on:
 jobs:
   update-docs:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
     defaults:
       run:
         working-directory: lesson-8-api-docs-automation
@@ -18,10 +22,11 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2  # Need at least 2 commits for git diff
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
       - run: npm install
 
