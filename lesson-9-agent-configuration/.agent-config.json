@@ -1,0 +1,51 @@
+{
+  "global": {
+    "model": "gpt-4o-mini",
+    "maxTokens": 2000,
+    "enabled": true
+  },
+  "codeReviewer": {
+    "enabled": true,
+    "model": null,
+    "maxTokens": null,
+    "focusAreas": [
+      "bugs",
+      "security",
+      "performance"
+    ],
+    "severity": "medium",
+    "excludePatterns": [
+      "*.test.js",
+      "*.spec.js",
+      "node_modules/**"
+    ],
+    "teamStandards": {
+      "maxFunctionLength": 50,
+      "requireJSDoc": false,
+      "enforceCamelCase": true
+    }
+  },
+  "bugFixer": {
+    "enabled": true,
+    "model": "gpt-4o-mini",
+    "maxTokens": 1500,
+    "attemptComplexFixes": false,
+    "maxAttemptsPerFile": 3,
+    "excludePatterns": [
+      "**/migrations/**",
+      "**/seeds/**",
+      "**/fixtures/**"
+    ],
+    "safetyLevel": "medium",
+    "autoCommit": true
+  },
+  "documentationWriter": {
+    "enabled": false,
+    "model": "gpt-4o",
+    "maxTokens": 3000,
+    "style": "standard",
+    "includeExamples": false,
+    "voiceAndTone": "casual",
+    "generateReadme": true
+  }
+}
