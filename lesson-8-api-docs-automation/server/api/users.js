@@ -21,10 +21,11 @@ async function getUsers(event) {
     
     // Mock database - in real app this would be a database call
     const mockUsers = [
-        { id: 1, name: 'John Doe', email: 'john@example.com', role: 'user' },
-        { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'admin' },
-        { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'user' },
-        { id: 4, name: 'Alice Wilson', email: 'alice@example.com', role: 'moderator' }
+        { id: 1, name: 'John Doe', email: 'john@example.com', role: 'user', status: 'active' },
+        { id: 2, name: 'Jane Smith', email: 'jane@example.com', role: 'admin', status: 'active' },
+        { id: 3, name: 'Bob Johnson', email: 'bob@example.com', role: 'user', status: 'inactive' },
+        { id: 4, name: 'Alice Wilson', email: 'alice@example.com', role: 'moderator', status: 'active' },
+        { id: 5, name: 'Charlie Brown', email: 'charlie@example.com', role: 'user', status: 'pending' }
     ];
     
     let users = mockUsers;

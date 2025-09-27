@@ -22,14 +22,17 @@ export default defineEventHandler(async (event) => {
     if (email === 'admin@example.com' && password === 'password123') {
         return {
             token: 'mock-jwt-token-' + Date.now(),
+            refreshToken: 'refresh-' + Date.now(),
             user: {
                 id: 1,
                 email: 'admin@example.com',
                 name: 'Admin User',
                 role: 'admin',
-                permissions: ['read', 'write', 'delete']
+                permissions: ['read', 'write', 'delete', 'admin'],
+                lastLogin: new Date().toISOString()
             },
             expiresIn: '24h',
+            refreshExpiresIn: '7d',
             message: 'Login successful'
         };
     }
