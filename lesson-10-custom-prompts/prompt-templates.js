@@ -259,5 +259,3 @@ Make it educational and encouraging - help people learn, not just use.`
         console.log(`✅ Added custom template '${name}' for ${agent}`);
     }
 }
-
-export { PromptTemplateEngine };

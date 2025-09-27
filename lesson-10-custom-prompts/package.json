@@ -5,8 +5,8 @@
   "main": "prompt-templates.js",
   "type": "module",
   "scripts": {
+    "demo": "node template-tester.js",
     "build-template": "node template-builder.js",
-    "test-templates": "node template-tester.js",
     "test-config": "node -e \"import('./agent-config.js').then(m => console.log('Config loaded:', new m.AgentConfig().prompts))\""
   },
   "keywords": [
