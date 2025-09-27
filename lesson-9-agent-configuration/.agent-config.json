@@ -40,12 +40,12 @@
     "autoCommit": true
   },
   "documentationWriter": {
-    "enabled": true,
+    "enabled": false,
     "model": "gpt-4o",
     "maxTokens": 3000,
     "style": "standard",
-    "includeExamples": true,
-    "voiceAndTone": "professional",
+    "includeExamples": false,
+    "voiceAndTone": "casual",
     "generateReadme": true
   }
 }
