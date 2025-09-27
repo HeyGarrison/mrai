@@ -5,8 +5,8 @@
   "main": "agent-config.js",
   "type": "module",
   "scripts": {
-    "test-config": "node config-test.js",
-    "create-config": "node -e \"import('./agent-config.js').then(m => new m.AgentConfig())\""
+    "create-config": "node -e \"import('./agent-config.js').then(m => new m.AgentConfig())\"",
+    "test-config": "node config-test.js"
   },
   "keywords": [
     "ai",

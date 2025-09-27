@@ -26,6 +26,12 @@ async function testConfiguration() {
     console.log(`  Max Attempts: ${config.bugFixer.maxAttemptsPerFile}`);
     console.log(`  Auto Commit: ${config.bugFixer.autoCommit}`);
     
+    console.log('\n📚 Documentation Writer Configuration:');
+    console.log(`  Enabled: ${config.documentationWriter.enabled}`);
+    console.log(`  Style: ${config.documentationWriter.style}`);
+    console.log(`  Voice and Tone: ${config.documentationWriter.voiceAndTone}`);
+    console.log(`  Include Examples: ${config.documentationWriter.includeExamples}`);
+    
     // Test file exclusion
     const testFiles = ['src/main.js', 'src/main.test.js', 'node_modules/package/index.js'];
     console.log('\n📁 File Exclusion Test:');
