@@ -1,4 +1,5 @@
 export async function getUserById(id) {
+    // Validate user ID parameter is provided
     if (!id) throw new Error('User ID is required');
     
     const user = await db.users.findById(id);
