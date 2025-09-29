@@ -51,6 +51,17 @@ export class AgentConfig {
                 excludePatterns: ['**/migrations/**', '**/seeds/**', '**/fixtures/**'],
                 safetyLevel: 'medium',
                 autoCommit: true
+            },
+
+            // Documentation writer settings
+            documentationWriter: {
+                enabled: true,
+                model: 'gpt-4o',
+                maxTokens: 3000,
+                style: 'standard',
+                includeExamples: true,
+                voiceAndTone: 'professional',
+                generateReadme: true
             }
         };
     }
