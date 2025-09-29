@@ -15,12 +15,12 @@ export class GitHubCostTracker {
         try {
             return JSON.parse(fs.readFileSync(this.usagePath, 'utf8'));
         } catch {
-            return {
-                totalSpent: 0,
-                monthly: {},
-                currentIssueNumber: null
-            };
+            return { totalSpent: 0, monthly: {} };
         }
+    }
+
+    saveUsage() {
+        fs.writeFileSync(this.usagePath, JSON.stringify(this.usage, null, 2));
     }
 
     async trackUsage(agent, model, inputTokens, outputTokens, metadata = {}) {
@@ -40,7 +40,7 @@ export class GitHubCostTracker {
             this.usage.monthly[month].agents[agent] = { cost: 0, calls: 0 };
         }
 
-        // Update totals
+        // Update usage
         const monthData = this.usage.monthly[month];
         monthData.cost += cost;
         monthData.agents[agent].cost += cost;
@@ -49,11 +49,13 @@ export class GitHubCostTracker {
 
         this.saveUsage();
 
-        // Update GitHub issue with new costs
+        // Update GitHub issue
         await this.updateMonthlyIssue(month, monthData);
 
         // Check for budget alerts
-        await this.checkBudgetAlerts(month, monthData.cost);
+        if (monthData.cost >= this.monthlyLimit * 0.9) {
+            await this.createBudgetAlert(month, monthData.cost);
+        }
 
         return { cost, monthlyTotal: monthData.cost };
     }
@@ -71,27 +73,24 @@ export class GitHubCostTracker {
     async createMonthlyIssue(month) {
         try {
             const monthName = new Date(month + '-01').toLocaleDateString('en-US', {
-                month: 'long',
-                year: 'numeric'
+                month: 'long', year: 'numeric'
             });
 
             const { data: issue } = await this.github.rest.issues.create({
                 owner: this.repoOwner,
                 repo: this.repoName,
                 title: `🤖 AI Agent Usage - ${monthName}`,
-                body: `## AI Agent Usage Report - ${monthName}
+                body: `## AI Agent Usage Report
 
-**Monthly Budget:** $${this.monthlyLimit}
-
-### Current Usage
-- **Total Cost:** $0.00
-- **Budget Used:** 0%
+**Monthly Budget:** $${this.monthlyLimit}  
+**Current Cost:** $0.00  
+**Budget Used:** 0%
 
 ### Agent Breakdown
 _No usage yet this month_
 
 ---
-*This issue is automatically updated as agents are used. It will be closed at the end of the month.*`,
+*Auto-updated as agents run*`,
                 labels: ['ai-usage', 'automated']
             });
 
@@ -109,38 +108,28 @@ _No usage yet this month_
 
         try {
             const monthName = new Date(month + '-01').toLocaleDateString('en-US', {
-                month: 'long',
-                year: 'numeric'
+                month: 'long', year: 'numeric'
             });
 
             const budgetPercent = Math.round((monthData.cost / this.monthlyLimit) * 100);
             const statusEmoji = budgetPercent > 90 ? '🚨' : budgetPercent > 75 ? '⚠️' : '✅';
 
-            // Build agent breakdown
             const agentBreakdown = Object.entries(monthData.agents)
-                .sort(([,a], [,b]) => b.cost - a.cost)
-                .map(([name, data]) => {
-                    const avgCost = data.cost / data.calls;
-                    return `- **${name}:** $${data.cost.toFixed(3)} (${data.calls} calls, $${avgCost.toFixed(4)}/call)`;
-                }).join('\n');
+                .map(([name, data]) => `- **${name}:** $${data.cost.toFixed(3)} (${data.calls} calls)`)
+                .join('\n');
 
-            const body = `## AI Agent Usage Report - ${monthName}
+            const body = `## AI Agent Usage Report ${statusEmoji}
 
-**Monthly Budget:** $${this.monthlyLimit}
-
-### Current Usage ${statusEmoji}
-- **Total Cost:** $${monthData.cost.toFixed(2)}
-- **Budget Used:** ${budgetPercent}%
-- **Remaining:** $${(this.monthlyLimit - monthData.cost).toFixed(2)}
+**Monthly Budget:** $${this.monthlyLimit}  
+**Current Cost:** $${monthData.cost.toFixed(2)}  
+**Budget Used:** ${budgetPercent}%  
+**Remaining:** $${(this.monthlyLimit - monthData.cost).toFixed(2)}
 
 ### Agent Breakdown
-${agentBreakdown || '_No usage yet this month_'}
-
-${budgetPercent > 75 ? `\n### ⚠️ Budget Alert\n${this.getBudgetSuggestions(monthData)}` : ''}
+${agentBreakdown}
 
 ---
-*Last updated: ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC*
-*This issue is automatically updated as agents are used.*`;
+*Last updated: ${new Date().toISOString().slice(0, 16).replace('T', ' ')} UTC*`;
 
             await this.github.rest.issues.update({
                 owner: this.repoOwner,
@@ -154,84 +143,34 @@ ${budgetPercent > 75 ? `\n### ⚠️ Budget Alert\n${this.getBudgetSuggestions(m
         }
     }
 
-    async checkBudgetAlerts(month, monthlySpend) {
-        const budgetPercent = (monthlySpend / this.monthlyLimit) * 100;
-
-        // Create alert issue at 90% usage
-        if (budgetPercent >= 90 && !this.usage.monthly[month].alertIssueCreated) {
-            await this.createBudgetAlertIssue(month, monthlySpend);
-            this.usage.monthly[month].alertIssueCreated = true;
-            this.saveUsage();
-        }
-    }
-
-    async createBudgetAlertIssue(month, monthlySpend) {
+    async createBudgetAlert(month, monthlySpend) {
+        const budgetPercent = Math.round((monthlySpend / this.monthlyLimit) * 100);
+        
         try {
-            const { data: issue } = await this.github.rest.issues.create({
+            await this.github.rest.issues.create({
                 owner: this.repoOwner,
                 repo: this.repoName,
-                title: `🚨 AI Budget Alert - ${Math.round((monthlySpend/this.monthlyLimit)*100)}% Used`,
+                title: `🚨 AI Budget Alert - ${budgetPercent}% Used`,
                 body: `## Budget Alert
 
-We've reached ${Math.round((monthlySpend/this.monthlyLimit)*100)}% of our monthly AI budget.
+We've used ${budgetPercent}% of our monthly AI budget.
 
-**Current Usage:** $${monthlySpend.toFixed(2)} / $${this.monthlyLimit}
+**Current:** $${monthlySpend.toFixed(2)} / $${this.monthlyLimit}  
 **Remaining:** $${(this.monthlyLimit - monthlySpend).toFixed(2)}
 
-### Immediate Actions Needed:
-${this.getBudgetSuggestions(this.usage.monthly[month])}
-
-### Options:
-- [ ] Increase monthly budget
-- [ ] Switch agents to cheaper models (gpt-4o-mini)
-- [ ] Temporarily disable non-critical agents
-- [ ] Optimize prompt templates to use fewer tokens
-
-Please review and take action to avoid service interruption.
+### Actions:
+- [ ] Review agent usage patterns
+- [ ] Consider switching to gpt-4o-mini for cost savings
+- [ ] Increase budget if needed
 
 ---
-*This alert was automatically created when usage exceeded 90% of budget.*`,
-                labels: ['ai-budget-alert', 'urgent'],
-                assignees: process.env.GITHUB_REPOSITORY_OWNER ? [process.env.GITHUB_REPOSITORY_OWNER] : []
+*Alert triggered automatically at 90% budget usage*`,
+                labels: ['ai-budget-alert', 'urgent']
             });
 
-            console.log(`🚨 Created budget alert issue: #${issue.number}`);
+            console.log('🚨 Created budget alert issue');
         } catch (error) {
-            console.error('Failed to create budget alert issue:', error.message);
-        }
-    }
-
-    getBudgetSuggestions(monthData) {
-        const suggestions = [];
-
-        Object.entries(monthData.agents).forEach(([name, data]) => {
-            const avgCost = data.cost / data.calls;
-            if (avgCost > 0.02) {
-                suggestions.push(`- **${name}** is expensive ($${avgCost.toFixed(4)}/call) - consider switching to gpt-4o-mini`);
-            }
-        });
-
-        if (suggestions.length === 0) {
-            suggestions.push('- Usage is high but efficient - consider increasing budget or reducing automation frequency');
-        }
-
-        return suggestions.join('\n');
-    }
-
-    saveUsage() {
-        fs.writeFileSync(this.usagePath, JSON.stringify(this.usage, null, 2));
-    }
-
-    async addCostToPRComment(prNumber, agent, cost, monthlyTotal) {
-        try {
-            const costInfo = `\n\n---\n💰 **AI Cost:** $${cost.toFixed(4)} | **Monthly Total:** $${monthlyTotal.toFixed(2)}/$${this.monthlyLimit}`;
-
-            // This would be called from your existing agent PR comments
-            // Just append cost info to existing comment body
-            return costInfo;
-        } catch (error) {
-            console.error('Failed to add cost to PR comment:', error.message);
-            return '';
+            console.error('Failed to create budget alert:', error.message);
         }
     }
 }

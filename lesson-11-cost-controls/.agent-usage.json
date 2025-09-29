@@ -1,0 +1,16 @@
+{
+  "totalSpent": 0.001935,
+  "monthly": {
+    "2025-09": {
+      "cost": 0.001935,
+      "agents": {
+        "documentationWriter": {
+          "cost": 0.001935,
+          "calls": 3
+        }
+      },
+      "issueNumber": null
+    }
+  },
+  "currentIssueNumber": null
+}
