@@ -9,6 +9,10 @@ on:
 jobs:
   generate-docs-with-costs:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
     defaults:
       run:
         working-directory: lesson-11-cost-controls
