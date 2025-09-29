@@ -80,13 +80,23 @@ ${existingDocs ? 'Update and improve the existing documentation based on the cur
         const model = this.settings.model || this.globalSettings.model;
         const maxTokens = this.settings.maxTokens || this.globalSettings.maxTokens;
 
-        const { text } = await generateText({
+        const result = await generateText({
             model: openai(model),
             prompt,
             maxTokens,
         });
 
-        return text.trim();
+        // Track cost in GitHub Issues
+        if (result.usage) {
+            await this.costTracker.trackCost(
+                'documentationWriter',
+                result.usage.promptTokens || 1200,
+                result.usage.completionTokens || 400,
+                model
+            );
+        }
+
+        return result.text.trim();
     }
 
     saveDocs(filename, documentation) {
