@@ -58,7 +58,7 @@
       "customVariables": {}
     },
     "documentationWriter": {
-      "template": "comprehensive",
+      "template": "default",
       "customVariables": {}
     }
   }
