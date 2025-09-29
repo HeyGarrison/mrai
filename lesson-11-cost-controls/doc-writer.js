@@ -25,7 +25,7 @@ class DocumentationWriter {
             return { skipped: true, reason: 'excluded' };
         }
 
-        console.log(`📝 Generating docs for ${filename} (${this.settings.style} style)...`);
+        console.log(`📝 Generating docs for ${filename} (${this.settings?.style || 'standard'} style)...`);
         
         const code = this.readCode(filename);
         const existingDocs = this.readExistingDocs(filename);
