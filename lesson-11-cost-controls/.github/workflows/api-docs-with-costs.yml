@@ -25,24 +25,31 @@ jobs:
 
 
 
-      - name: Generate API documentation with cost tracking
+      - name: Simulate documentation generation with cost tracking
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          echo "📚 Generating API documentation with AI cost tracking..."
+          echo "📚 Simulating API documentation generation with cost tracking..."
           
-          # Generate documentation for any API files in the PR
-          for file in api/*.js; do
-            if [ -f "$file" ]; then
-              echo "📚 Generating docs for $file..."
-              node ci-doc-writer.js "$file"
-            fi
-          done
+          # Simulate cost tracking for demo purposes
+          node -e "
+          import { GitHubCostTracker } from './github-cost-tracker.js';
           
-          echo "✅ Documentation generated - costs tracked in GitHub Issues!"
+          const tracker = new GitHubCostTracker();
+          
+          // Simulate documentation generation costs
+          Promise.all([
+            tracker.trackUsage('documentationWriter', 'gpt-4o-mini', 1200, 800, { filename: 'api/sample-api.js' }),
+            tracker.trackUsage('documentationWriter', 'gpt-4o-mini', 1000, 600, { filename: 'api/demo-users.js' })
+          ]).then(() => {
+            console.log('✅ Cost tracking updated in GitHub Issues!');
+          }).catch(console.error);
+          "
+          
+          echo "✅ Documentation generation simulated - costs tracked in GitHub Issues!"
 
       - name: Commit generated documentation
         run: |
