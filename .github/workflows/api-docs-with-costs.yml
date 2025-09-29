@@ -40,17 +40,17 @@ jobs:
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          echo "📚 Running code review with cost tracking..."
+          echo "📚 Generating API documentation with cost tracking..."
           
-          # Run code reviewer on API files - cost tracking happens automatically
+          # Run documentation writer on API files - cost tracking happens automatically
           for file in api/*.js; do
             if [ -f "$file" ]; then
-              echo "🔍 Reviewing $file with cost tracking..."
-              node code-reviewer.js "$file"
+              echo "📝 Generating docs for $file with cost tracking..."
+              node doc-writer.js "$file"
             fi
           done
           
-          echo "✅ Code review and cost tracking complete!"
+          echo "✅ Documentation generation and cost tracking complete!"
 
       - name: Commit generated documentation
         run: |
