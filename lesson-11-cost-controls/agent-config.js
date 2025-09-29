@@ -9,10 +9,13 @@ export class AgentConfig {
 
     loadConfig() {
         try {
+            console.log(`🔍 Looking for config at: ${this.configPath}`);
             const userConfig = JSON.parse(fs.readFileSync(this.configPath, 'utf8'));
+            console.log('✅ Config loaded successfully');
             return this.mergeWithDefaults(userConfig);
         } catch (error) {
-            console.log('📝 No config found, creating default configuration...');
+            console.log(`📝 No config found at ${this.configPath}: ${error.message}`);
+            console.log('Creating default configuration...');
             return this.createDefaultConfig();
         }
     }
