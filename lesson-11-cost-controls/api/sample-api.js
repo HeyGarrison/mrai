@@ -1,6 +1,7 @@
 import { getQuery, readBody } from 'h3';
 
 // User management API with role-based access control
+// Supports GET for listing users and POST for creating new users
 export default defineEventHandler(async (event) => {
     const method = getMethod(event);
     
