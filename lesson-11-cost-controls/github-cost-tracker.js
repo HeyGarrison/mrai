@@ -1,6 +1,6 @@
 import { Octokit } from '@octokit/rest';
 
-export class SimpleCostTracker {
+export class GitHubCostTracker {
     constructor() {
         this.github = new Octokit({ auth: process.env.GITHUB_TOKEN });
         this.owner = process.env.GITHUB_REPOSITORY_OWNER;
