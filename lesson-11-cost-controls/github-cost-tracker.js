@@ -39,13 +39,16 @@ export class GitHubCostTracker {
       state: 'open'
     });
 
-    let issue = issues.data.find(i => i.title.includes(month));
+    let issue = issues.data.find(i => i.title === title);
     let monthlyTotal = cost;
 
     if (issue) {
       // Update existing issue
-      const currentCost = this.extractCostFromIssue(issue.body) + cost;
+      const previousCost = this.extractCostFromIssue(issue.body);
+      const currentCost = previousCost + cost;
       monthlyTotal = currentCost;
+      
+      console.log(`💰 Cost tracking: Previous $${previousCost.toFixed(4)} + New $${cost.toFixed(4)} = Total $${currentCost.toFixed(4)}`);
 
       await this.github.rest.issues.update({
         owner: this.owner,
@@ -98,16 +101,16 @@ Consider switching to gpt-4o-mini for cost savings.`
     return `## Monthly AI Usage
 
 **Budget:** $${this.monthlyBudget}
-**Spent:** $${totalCost.toFixed(2)} (${budgetPercent}%)
+**Spent:** $${totalCost.toFixed(6)} (${budgetPercent}%)
 **Remaining:** $${(this.monthlyBudget - totalCost).toFixed(2)}
 
-**Latest:** ${lastAgent} used $${lastCost.toFixed(4)}
+**Latest:** ${lastAgent} used $${lastCost.toFixed(6)}
 
 *Updated: ${new Date().toISOString().slice(0, 16).replace('T', ' ')}*`;
   }
 
   extractCostFromIssue(body) {
-    const match = body.match(/\*\*Spent:\*\* \$(\d+\.\d+)/);
+    const match = body.match(/\*\*Spent:\*\* \$(\d+(?:\.\d+)?)/);
     return match ? parseFloat(match[1]) : 0;
   }
 }
