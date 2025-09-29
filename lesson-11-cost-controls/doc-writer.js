@@ -10,7 +10,14 @@ class DocumentationWriter {
     constructor(configPath) {
         this.agentConfig = new AgentConfig(configPath);
         this.costTracker = new GitHubCostTracker();
-        this.settings = this.agentConfig.documentationWriter;
+        this.settings = this.agentConfig.documentationWriter || {
+            enabled: true,
+            model: 'gpt-4o',
+            maxTokens: 3000,
+            style: 'standard',
+            includeExamples: true,
+            voiceAndTone: 'professional'
+        };
         this.globalSettings = this.agentConfig.global;
     }
 
