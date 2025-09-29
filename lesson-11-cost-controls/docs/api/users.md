@@ -12,7 +12,7 @@ Retrieves a user from the database based on the provided user ID.
 - **id** (String): The unique identifier of the user. This parameter is required.
 
 #### Returns
-- **Object**: An object containing the user's details, including:
+- **Object**: An object containing user details, including:
   - **id** (String): The user's unique identifier.
   - **name** (String): The user's name.
   - **email** (String): The user's email address.
@@ -26,7 +26,8 @@ Retrieves a user from the database based on the provided user ID.
 ```javascript
 async function exampleGetUserById() {
   try {
-    const user = await getUserById('12345');
+    const userId = '12345';
+    const user = await getUserById(userId);
     console.log(user);
   } catch (error) {
     console.error(error.message);
@@ -39,7 +40,7 @@ async function exampleGetUserById() {
 Creates a new user in the database with the provided user data.
 
 #### Parameters
-- **userData** (Object): An object containing the user's information. This parameter is required and must include:
+- **userData** (Object): An object containing user information. This parameter is required and must include:
   - **name** (String): The name of the user. This field is required.
   - **email** (String): The email address of the user. This field is required.
   - **role** (String, optional): The role of the user. Defaults to 'user' if not provided.
@@ -54,18 +55,17 @@ Creates a new user in the database with the provided user data.
 ```javascript
 async function exampleCreateUser() {
   try {
-    const newUser = await createUser({
+    const newUser = {
       name: 'John Doe',
       email: 'john.doe@example.com',
       role: 'admin'
-    });
-    console.log('User created:', newUser);
+    };
+    const createdUser = await createUser(newUser);
+    console.log('User created:', createdUser);
   } catch (error) {
     console.error(error.message);
   }
 }
 ```
 
-## Summary
-
-This documentation provides a comprehensive overview of the user management functions available in the `api/users.js` file. By following the parameter requirements and utilizing the provided examples, developers can effectively manage user data within their applications.
+This documentation provides a comprehensive overview of the user management functions, ensuring developers can easily understand and implement the functionality provided in the `api/users.js` file.
