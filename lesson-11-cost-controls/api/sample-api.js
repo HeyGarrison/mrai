@@ -1,5 +1,6 @@
 import { getQuery, readBody } from 'h3';
 
+// User management API with role-based access control
 export default defineEventHandler(async (event) => {
     const method = getMethod(event);
     
