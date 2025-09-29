@@ -42,9 +42,9 @@ jobs:
         run: |
           echo "📚 Generating documentation with cost tracking..."
           
-          # Simple cost tracking 
-          node -e "import('./simple-cost-tracker.js').then(m => {
-            const tracker = new m.SimpleCostTracker();
+          # GitHub cost tracking 
+          node -e "import('./github-cost-tracker.js').then(m => {
+            const tracker = new m.GitHubCostTracker();
             return tracker.trackCost('documentationWriter', 1200, 800);
           }).then(result => {
             console.log('💰 Cost: $' + result.cost.toFixed(4));
