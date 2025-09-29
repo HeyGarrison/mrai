@@ -40,18 +40,17 @@ jobs:
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
           GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
-          echo "📚 Generating documentation with cost tracking..."
+          echo "📚 Running code review with cost tracking..."
           
-          # GitHub cost tracking 
-          node -e "import('./github-cost-tracker.js').then(m => {
-            const tracker = new m.GitHubCostTracker();
-            return tracker.trackCost('documentationWriter', 1200, 800);
-          }).then(result => {
-            console.log('💰 Cost: $' + result.cost.toFixed(4));
-            console.log('📊 Monthly total: $' + result.monthlyTotal.toFixed(2));
-          });"
+          # Run code reviewer on API files - cost tracking happens automatically
+          for file in api/*.js; do
+            if [ -f "$file" ]; then
+              echo "🔍 Reviewing $file with cost tracking..."
+              node code-reviewer.js "$file"
+            fi
+          done
           
-          echo "✅ Cost tracking complete!"
+          echo "✅ Code review and cost tracking complete!"
 
       - name: Commit generated documentation
         run: |
