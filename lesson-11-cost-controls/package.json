@@ -5,9 +5,7 @@
   "main": "github-cost-tracker.js",
   "type": "module",
   "scripts": {
-    "setup-budget": "node setup-budget.js",
-    "test-costs": "node test-github-costs.js",
-    "check-usage": "node -e \"import('./github-cost-tracker.js').then(m => console.log(new m.GitHubCostTracker().usage))\""
+    "check-usage": "node -e \"import('./github-cost-tracker.js').then(m => console.log('Current usage:', new m.GitHubCostTracker().usage))\""
   },
   "keywords": [
     "ai",

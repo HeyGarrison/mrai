@@ -99,5 +99,3 @@ export class AgentConfig {
         });
     }
 }
-
-export { AgentConfig };
