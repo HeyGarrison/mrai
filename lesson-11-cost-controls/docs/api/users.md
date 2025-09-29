@@ -10,24 +10,21 @@ Retrieves a user from the database based on the provided user ID.
 
 #### Parameters
 - **id** (String): The unique identifier of the user. This parameter is required.
-  - **Example**: `'12345'`
 
 #### Returns
 - **Object**: An object containing the user's details, including:
-  - `id` (String): The user's unique identifier.
-  - `name` (String): The user's name.
-  - `email` (String): The user's email address.
-  - `role` (String): The user's role (e.g., 'user', 'admin').
-  - `createdAt` (Date): The date the user was created.
+  - **id** (String): The user's unique identifier.
+  - **name** (String): The user's name.
+  - **email** (String): The user's email address.
+  - **role** (String): The user's role (e.g., 'user', 'admin').
+  - **createdAt** (Date): The date the user was created.
 
-#### Errors
-- Throws an error if:
-  - The `id` parameter is not provided.
-  - A user with the specified ID does not exist.
+#### Throws
+- **Error**: If the user ID is not provided or if the user is not found in the database.
 
 #### Usage Example
 ```javascript
-async function fetchUser() {
+async function exampleGetUserById() {
   try {
     const user = await getUserById('12345');
     console.log(user);
@@ -45,24 +42,22 @@ Creates a new user in the database with the provided user data.
 - **userData** (Object): An object containing the user's information. This parameter is required and must include:
   - **name** (String): The name of the user. This field is required.
   - **email** (String): The email address of the user. This field is required.
-  - **role** (String, optional): The role of the user. Defaults to `'user'` if not provided.
-    - **Example**: `{ name: 'John Doe', email: 'john.doe@example.com', role: 'admin' }`
+  - **role** (String, optional): The role of the user. Defaults to 'user' if not provided.
 
 #### Returns
 - **Object**: The newly created user object.
 
-#### Errors
-- Throws an error if:
-  - The `name` or `email` fields are not provided.
-  - A user with the specified email already exists.
+#### Throws
+- **Error**: If the name or email is not provided, or if the email already exists in the database.
 
 #### Usage Example
 ```javascript
-async function registerUser() {
+async function exampleCreateUser() {
   try {
     const newUser = await createUser({
-      name: 'Jane Smith',
-      email: 'jane.smith@example.com'
+      name: 'John Doe',
+      email: 'john.doe@example.com',
+      role: 'admin'
     });
     console.log('User created:', newUser);
   } catch (error) {
@@ -73,4 +68,4 @@ async function registerUser() {
 
 ## Summary
 
-This documentation provides a clear understanding of the user management functions available in the `api/users.js` file. By following the parameter requirements and utilizing the provided examples, developers can effectively implement user retrieval and creation functionalities in their applications.
+This documentation provides a comprehensive overview of the user management functions available in the `api/users.js` file. By following the parameter requirements and utilizing the provided examples, developers can effectively manage user data within their applications.
