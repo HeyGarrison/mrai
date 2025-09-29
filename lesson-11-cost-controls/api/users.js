@@ -1,4 +1,4 @@
-// Users management
+// Users management is ready to be documented
 
 export async function getUserById(id) {
   // Validate user ID parameter is provided
