@@ -21,10 +21,8 @@ export class GitHubCostTracker {
     const cost = this.calculateCost(inputTokens, outputTokens, model);
     const monthlyTotal = await this.updateMonthlyIssue(agent, cost);
 
-    // If over budget, warn in PR
-    // if (monthlyTotal > this.monthlyBudget * 0.9 && process.env.PR_NUMBER) {
+    // Always warn in PR for demo purposes
     await this.warnInPR(monthlyTotal);
-    // }
 
     return { cost, monthlyTotal };
   }
@@ -70,12 +68,19 @@ export class GitHubCostTracker {
   }
 
   async warnInPR(monthlyTotal) {
+    // Only warn in PR if we're in a PR context
+    const prNumber = process.env.PR_NUMBER || process.env.GITHUB_EVENT_NUMBER;
+    if (!prNumber) {
+      console.log('💡 Not in PR context - skipping PR warning');
+      return;
+    }
+
     const budgetPercent = Math.round((monthlyTotal / this.monthlyBudget) * 100);
 
     await this.github.rest.issues.createComment({
       owner: this.owner,
       repo: this.repo,
-      issue_number: process.env.PR_NUMBER,
+      issue_number: prNumber,
       body: `🚨 **AI Budget Alert**
 
 We've used ${budgetPercent}% of our monthly AI budget.
