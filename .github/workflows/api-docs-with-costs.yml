@@ -56,13 +56,19 @@ jobs:
         run: |
           git config user.name "Documentation Bot"
           git config user.email "docs@github-actions.com"
-          git add docs/
-          if ! git diff --staged --quiet; then
-            git commit -m "📚 Auto-generated API documentation with cost tracking"
-            git push
-            echo "📝 Documentation committed and pushed!"
+          
+          # Only add docs if they exist
+          if [ -d "docs" ]; then
+            git add docs/
+            if ! git diff --staged --quiet; then
+              git commit -m "📚 Auto-generated API documentation with cost tracking"
+              git push
+              echo "📝 Documentation committed and pushed!"
+            else
+              echo "📝 Documentation up to date"
+            fi
           else
-            echo "📝 Documentation up to date"
+            echo "📝 No documentation directory created"
           fi
 
       - name: Summary
