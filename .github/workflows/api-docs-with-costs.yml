@@ -33,12 +33,13 @@ jobs:
 
 
 
-      - name: Simulate documentation generation with cost tracking
+      - name: Documentation generation with cost tracking
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.number }}
         run: |
           echo "📚 Generating API documentation with cost tracking..."
           
@@ -54,9 +55,9 @@ jobs:
 
       - name: Commit generated documentation
         run: |
-          git config user.name "Documentation Bot"
-          git config user.email "docs@github-actions.com"
-          
+          git config user.name "API Doc Bot"
+          git config user.email "action@github.com"
+
           # Only add docs if they exist
           if [ -d "docs" ]; then
             git add docs/

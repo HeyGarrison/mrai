@@ -25,7 +25,7 @@ class DocumentationWriter {
             return { skipped: true, reason: 'excluded' };
         }
 
-        console.log(`📝 Generating docs for ${filename} (${this.settings.style} style)...`);
+        console.log(`📝 Generating docs for ${filename} (${this.settings?.style || 'standard'} style)...`);
         
         const code = this.readCode(filename);
         const existingDocs = this.readExistingDocs(filename);
@@ -52,11 +52,12 @@ class DocumentationWriter {
     async analyzeCode(code, filename, existingDocs) {
         const existingContext = existingDocs ? `\n\n**Existing documentation:**\n${existingDocs.slice(0, 500)}...` : '';
         
+        const settings = this.settings || {};
         const prompt = `You are a technical documentation expert configured for this team's style.
 
-**Documentation Style:** ${this.settings.style}
-**Voice and Tone:** ${this.settings.voiceAndTone}
-**Include Examples:** ${this.settings.includeExamples ? 'Yes' : 'No'}
+**Documentation Style:** ${settings.style || 'standard'}
+**Voice and Tone:** ${settings.voiceAndTone || 'professional'}
+**Include Examples:** ${settings.includeExamples !== false ? 'Yes' : 'No'}
 
 **File:** ${filename}${existingContext}
 
@@ -68,17 +69,17 @@ ${code}
 Generate documentation that includes:
 1. **Function documentation** - Clear descriptions of what each function does
 2. **Parameter details** - Types, requirements, and examples
-${this.settings.includeExamples ? '3. **Usage examples** - Practical code examples showing how to use the functions' : ''}
+${settings.includeExamples !== false ? '3. **Usage examples** - Practical code examples showing how to use the functions' : ''}
 
-${this.settings.style === 'brief' ? 'Keep documentation concise and focused on key information.' : ''}
-${this.settings.style === 'comprehensive' ? 'Provide detailed documentation with extensive examples and edge cases.' : ''}
-${this.settings.voiceAndTone === 'casual' ? 'Use a friendly, approachable tone.' : ''}
-${this.settings.voiceAndTone === 'technical' ? 'Use precise technical language for expert developers.' : ''}
+${settings.style === 'brief' ? 'Keep documentation concise and focused on key information.' : ''}
+${settings.style === 'comprehensive' ? 'Provide detailed documentation with extensive examples and edge cases.' : ''}
+${settings.voiceAndTone === 'casual' ? 'Use a friendly, approachable tone.' : ''}
+${settings.voiceAndTone === 'technical' ? 'Use precise technical language for expert developers.' : ''}
 
 ${existingDocs ? 'Update and improve the existing documentation based on the current code.' : 'Provide clear, practical documentation that helps developers understand and use this code effectively.'}`;
 
-        const model = this.settings.model || this.globalSettings.model;
-        const maxTokens = this.settings.maxTokens || this.globalSettings.maxTokens;
+        const model = settings.model || this.globalSettings.model;
+        const maxTokens = settings.maxTokens || this.globalSettings.maxTokens;
 
         const result = await generateText({
             model: openai(model),
